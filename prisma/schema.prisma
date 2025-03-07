@@ -1,0 +1,187 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model brick {
+  id           String       @id @default(uuid())
+  code         String       @unique(map: "Brick_code_key")
+  name         String
+  definition   String?
+  classId      String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  Renamedclass Renamedclass @relation(fields: [classId], references: [id], map: "Brick_classId_fkey")
+  item         item[]
+
+  @@index([classId], map: "Brick_classId_fkey")
+}
+
+model cabinet {
+  id        String   @id @default(uuid())
+  name      String
+  roomId    String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  room      room     @relation(fields: [roomId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
+  item      item[]
+
+  @@index([roomId])
+  @@index([userId])
+}
+
+/// This model has been renamed to 'Renamedclass' during introspection, because the original name 'class' is reserved.
+model Renamedclass {
+  id        String   @id @default(uuid())
+  code      String   @unique(map: "Class_code_key")
+  name      String
+  familyId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  brick     brick[]
+  family    family   @relation(fields: [familyId], references: [id], map: "Class_familyId_fkey")
+
+  @@index([familyId], map: "Class_familyId_fkey")
+  @@map("class")
+}
+
+model family {
+  id           String         @id @default(uuid())
+  code         String         @unique(map: "Family_code_key")
+  name         String
+  segmentId    String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  Renamedclass Renamedclass[]
+  segment      segment        @relation(fields: [segmentId], references: [id], map: "Family_segmentId_fkey")
+
+  @@index([segmentId], map: "Family_segmentId_fkey")
+}
+
+model inventorylog {
+  id        String   @id @default(uuid())
+  itemId    String
+  userId    String
+  type      String
+  quantity  Int
+  createdAt DateTime @default(now())
+  item      item     @relation(fields: [itemId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
+
+  @@index([itemId])
+  @@index([userId])
+}
+
+model item {
+  id             String         @id @default(uuid())
+  productId      String
+  userId         String
+  quantity       Int            @default(0)
+  unit           String         @default("个")
+  hasExpiration  Boolean        @default(false)
+  productionDate DateTime?
+  expirationDate DateTime?
+  shelfLifeDays  Int?
+  cabinetId      String
+  note           String?
+  brickId        String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime
+  inventorylog   inventorylog[]
+  brick          brick          @relation(fields: [brickId], references: [id])
+  cabinet        cabinet        @relation(fields: [cabinetId], references: [id])
+  product        product        @relation(fields: [productId], references: [id])
+  user           user           @relation(fields: [userId], references: [id])
+
+  @@index([brickId])
+  @@index([cabinetId])
+  @@index([productId])
+  @@index([userId])
+}
+
+model product {
+  id                    String   @id @default(uuid())
+  barcode               String?
+  name                  String
+  userId                String
+  englishName           String?
+  brand                 String?
+  manufacturer          String?
+  specification         String?
+  width                 String?
+  height                String?
+  depth                 String?
+  grossWeight           String?
+  netWeight             String?
+  originCountry         String?
+  goodsType             String?
+  categoryCode          String?
+  categoryName          String?
+  price                 Float?
+  imageUrl              String?  @db.Text
+  firstShipDate         String?
+  packagingType         String?
+  shelfLife             String?
+  minSalesUnit          String?
+  certificationStandard String?
+  certificateLicense    String?
+  note                  String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime
+  item                  item[]
+  user                  user     @relation(fields: [userId], references: [id])
+
+  @@index([barcode], map: "Product_barcode_idx")
+  @@index([userId])
+}
+
+model room {
+  id        String    @id @default(uuid())
+  name      String
+  userId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  cabinets  cabinet[]
+  user      user      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model segment {
+  id        String   @id @default(uuid())
+  code      String   @unique(map: "Segment_code_key")
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  family    family[]
+}
+
+model user {
+  id            String         @id @default(uuid())
+  phone         String        @unique(map: "User_phone_key")
+  name          String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  rooms         room[]
+  cabinets      cabinet[]
+  products      product[]
+  items         item[]
+  inventorylogs inventorylog[]
+}
+
+model verificationcode {
+  id        String   @id @default(uuid())
+  phone     String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([phone], map: "VerificationCode_phone_idx")
+}

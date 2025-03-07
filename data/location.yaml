@@ -1,0 +1,39 @@
+rooms:
+  - name: 主卧
+    cabinets:
+      - name: 衣柜
+      - name: 床头柜-北
+      - name: 床头柜-南
+      - name: 边柜
+  - name: 主卫
+    cabinets:
+      - name: 镜柜
+  - name: 衣帽间
+    cabinets:
+      - name: 衣柜-西
+      - name: 衣柜-东
+  - name: 书房
+    cabinets:
+      - name: 书柜
+  - name: 客厅
+    cabinets:
+      - name: 电视柜
+      - name: 餐边柜
+      - name: 窗台柜
+      - name: 酒柜
+      - name: 岛台柜
+      - name: 电视柜-北
+  - name: 阳台
+    cabinets:
+      - name: 阳台柜
+  - name: 厨房
+    cabinets:
+      - name: 橱柜-上
+      - name: 橱柜-下
+      - name: 调料柜
+  - name: 客卧
+    cabinets:
+      - name: 衣柜
+  - name: 客卫
+    cabinets:
+      - name: 镜柜

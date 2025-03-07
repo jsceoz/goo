@@ -1,0 +1,31 @@
+mixed-port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+
+dns:
+  enable: true
+  listen: 0.0.0.0:53
+  enhanced-mode: fake-ip
+  nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+
+proxies:
+  - name: goo-server
+    type: http
+    server: 47.119.34.66
+    port: 80
+    
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - goo-server
+      - DIRECT
+
+rules:
+  - DOMAIN,goo.jsceoz.me,goo-server
+  - DOMAIN-SUFFIX,jsceoz.me,goo-server
+  - IP-CIDR,47.119.34.66/32,DIRECT
+  - MATCH,DIRECT 
